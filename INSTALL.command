@@ -1,72 +1,67 @@
 #!/bin/bash
 
-# PhoneHasher Auto-Installer
-# Double-click this file to install PhoneHasher without terminal commands!
+# PhoneHasher - Automatic Installer
+# Removes quarantine attributes and opens the app
 
-# Get the directory where this script is located
-SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-
-# Colors
-GREEN='\033[0;32m'
-BLUE='\033[0;34m'
-YELLOW='\033[1;33m'
-NC='\033[0m' # No Color
-
-echo ""
-echo "=========================================="
-echo "   PhoneHasher - Auto Installer"
-echo "=========================================="
+echo "================================================"
+echo "PhoneHasher - Automatic Installer"
+echo "================================================"
 echo ""
 
-# Find PhoneHasher.app in the same directory
-APP_PATH="$SCRIPT_DIR/PhoneHasher.app"
+# Function to find the app
+find_app() {
+    # Try common locations
+    LOCATIONS=(
+        "$HOME/Downloads/PhoneHasher.app"
+        "$(dirname "$0")/PhoneHasher.app"
+        "$PWD/PhoneHasher.app"
+    )
 
-if [ ! -d "$APP_PATH" ]; then
-    echo "❌ ERROR: PhoneHasher.app not found in the same folder"
+    for loc in "${LOCATIONS[@]}"; do
+        if [ -d "$loc" ]; then
+            echo "$loc"
+            return 0
+        fi
+    done
+
+    return 1
+}
+
+# Find the app
+APP_PATH=$(find_app)
+
+if [ -z "$APP_PATH" ]; then
+    echo "❌ Could not find PhoneHasher.app"
     echo ""
-    echo "Make sure PhoneHasher.app is in the same folder as this installer."
+    echo "Please make sure PhoneHasher.app is in the same folder as this script"
+    echo "or in your Downloads folder."
     echo ""
     read -p "Press Enter to exit..."
     exit 1
 fi
 
-echo -e "${BLUE}Found: PhoneHasher.app${NC}"
+echo "✓ Found app at: $APP_PATH"
 echo ""
 
-echo -e "${BLUE}Step 1: Removing security quarantine...${NC}"
+# Remove quarantine
+echo "Removing security blocks..."
 xattr -cr "$APP_PATH"
 
 if [ $? -eq 0 ]; then
-    echo -e "${GREEN}✓ Quarantine removed${NC}"
+    echo "✓ Security blocks removed"
+    echo ""
+    echo "Opening PhoneHasher..."
+    open "$APP_PATH"
+    echo ""
+    echo "✅ Done! PhoneHasher should open now."
 else
-    echo -e "${YELLOW}⚠️  Could not remove quarantine (might need admin password)${NC}"
-    echo "Trying with sudo..."
-    sudo xattr -cr "$APP_PATH"
-fi
-
-echo ""
-echo -e "${BLUE}Step 2: Opening PhoneHasher...${NC}"
-open "$APP_PATH"
-
-if [ $? -eq 0 ]; then
-    echo -e "${GREEN}✓ PhoneHasher opened successfully!${NC}"
+    echo "❌ Could not remove security blocks"
     echo ""
-    echo "=========================================="
-    echo "   Installation Complete! 🎉"
-    echo "=========================================="
-    echo ""
-    echo "PhoneHasher is now running."
-    echo "You can close this window."
-    echo ""
-else
-    echo -e "${YELLOW}⚠️  Could not open automatically${NC}"
-    echo ""
-    echo "Please try:"
+    echo "Please try manually:"
     echo "1. Right-click PhoneHasher.app"
     echo "2. Click 'Open'"
     echo "3. Click 'Open' again in the dialog"
-    echo ""
 fi
 
-# Keep window open for 3 seconds so user can see the result
-sleep 3
+echo ""
+read -p "Press Enter to close..."

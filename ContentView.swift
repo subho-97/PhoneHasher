@@ -211,6 +211,8 @@ struct FileSelectionView: View {
                                 .font(.system(size: 11, weight: .bold))
                                 .foregroundColor(Color(hex: "64748b"))
                                 .frame(width: 100, alignment: .trailing)
+                            Text("")
+                                .frame(width: 30)
                         }
                         .padding(.horizontal, 12)
                         .padding(.vertical, 8)
@@ -228,6 +230,17 @@ struct FileSelectionView: View {
                                     .font(.system(size: 11, design: .monospaced))
                                     .foregroundColor(fileInfo.isCountingRows ? Color(hex: "94a3b8") : Color(hex: "2563eb"))
                                     .frame(width: 100, alignment: .trailing)
+
+                                // Delete button
+                                Button(action: {
+                                    deleteFile(fileInfo)
+                                }) {
+                                    Image(systemName: "trash")
+                                        .font(.system(size: 10))
+                                        .foregroundColor(Color(hex: "ef4444"))
+                                }
+                                .buttonStyle(PlainButtonStyle())
+                                .frame(width: 30)
                             }
                             .padding(.horizontal, 12)
                             .padding(.vertical, 8)
@@ -263,18 +276,28 @@ struct FileSelectionView: View {
         panel.canChooseFiles = true
         panel.canChooseDirectories = false
         panel.allowedContentTypes = [.commaSeparatedText, .plainText]
-        panel.message = "Select CSV files (max 10)"
+        panel.message = "Select CSV files (max 10 total)"
 
         if panel.runModal() == .OK {
-            let selected = panel.urls.prefix(10)
-            appState.selectedFiles = Array(selected)
+            // Get currently selected file URLs
+            let existingURLs = Set(appState.selectedFiles)
 
-            // Create FileInfo objects and count rows
-            appState.fileInfos = selected.map { FileInfo(url: $0, rowCount: nil, isCountingRows: true) }
+            // Filter out duplicates and respect the 10-file limit
+            let newURLs = panel.urls.filter { !existingURLs.contains($0) }
+            let availableSlots = 10 - appState.selectedFiles.count
+            let urlsToAdd = Array(newURLs.prefix(availableSlots))
 
-            // Count rows asynchronously
+            // Append new files to existing selection
+            appState.selectedFiles.append(contentsOf: urlsToAdd)
+
+            // Create FileInfo objects and count rows for new files
+            let newFileInfos = urlsToAdd.map { FileInfo(url: $0, rowCount: nil, isCountingRows: true) }
+            appState.fileInfos.append(contentsOf: newFileInfos)
+
+            // Count rows asynchronously for new files only
             Task {
-                for index in appState.fileInfos.indices {
+                let startIndex = appState.fileInfos.count - newFileInfos.count
+                for index in startIndex..<appState.fileInfos.count {
                     let url = appState.fileInfos[index].url
                     let count = await Task.detached {
                         HashProcessor.countRows(in: url)
@@ -286,6 +309,14 @@ struct FileSelectionView: View {
                     }
                 }
             }
+        }
+    }
+
+    func deleteFile(_ fileInfo: FileInfo) {
+        // Remove from both arrays
+        if let index = appState.fileInfos.firstIndex(where: { $0.id == fileInfo.id }) {
+            appState.fileInfos.remove(at: index)
+            appState.selectedFiles.remove(at: index)
         }
     }
 

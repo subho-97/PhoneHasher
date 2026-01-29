@@ -40,27 +40,6 @@ if ! command -v xcodebuild &> /dev/null; then
     exit 1
 fi
 
-# Check if we're using full Xcode (not just command line tools)
-XCODE_PATH=$(xcode-select -p)
-if [[ "$XCODE_PATH" == *"CommandLineTools"* ]]; then
-    echo "❌ ERROR: xcodebuild requires full Xcode.app"
-    echo ""
-    echo "Current developer directory: $XCODE_PATH"
-    echo ""
-    echo "SOLUTIONS:"
-    echo ""
-    echo "1. Install Xcode from App Store (FREE):"
-    echo "   https://apps.apple.com/app/xcode/id497799835"
-    echo ""
-    echo "2. Then switch to Xcode:"
-    echo "   sudo xcode-select -s /Applications/Xcode.app/Contents/Developer"
-    echo ""
-    echo "3. OR use GitHub Actions (builds on GitHub, no local Xcode):"
-    echo "   See CLI_BUILD_GUIDE.md section on GitHub Actions"
-    echo ""
-    exit 1
-fi
-
 # Check if we have the source files
 if [ ! -f "$PROJECT_DIR/PhoneHasherApp.swift" ]; then
     echo "❌ ERROR: Source files not found in $PROJECT_DIR"
@@ -82,41 +61,17 @@ cp "$PROJECT_DIR/ContentView.swift" "$PROJECT_DIR/$APP_NAME/"
 cp "$PROJECT_DIR/Models.swift" "$PROJECT_DIR/$APP_NAME/"
 cp "$PROJECT_DIR/HashProcessor.swift" "$PROJECT_DIR/$APP_NAME/"
 
-# Create Info.plist if it doesn't exist
-if [ ! -f "$PROJECT_DIR/$APP_NAME/Info.plist" ]; then
-    cat > "$PROJECT_DIR/$APP_NAME/Info.plist" << 'EOF'
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-<plist version="1.0">
-<dict>
-    <key>CFBundleDevelopmentRegion</key>
-    <string>en</string>
-    <key>CFBundleExecutable</key>
-    <string>$(EXECUTABLE_NAME)</string>
-    <key>CFBundleIdentifier</key>
-    <string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
-    <key>CFBundleInfoDictionaryVersion</key>
-    <string>6.0</string>
-    <key>CFBundleName</key>
-    <string>$(PRODUCT_NAME)</string>
-    <key>CFBundlePackageType</key>
-    <string>APPL</string>
-    <key>CFBundleShortVersionString</key>
-    <string>1.0</string>
-    <key>CFBundleVersion</key>
-    <string>1</string>
-    <key>LSMinimumSystemVersion</key>
-    <string>13.0</string>
-    <key>NSHumanReadableCopyright</key>
-    <string>Copyright © 2026. All rights reserved.</string>
-    <key>NSPrincipalClass</key>
-    <string>NSApplication</string>
-</dict>
-</plist>
-EOF
+# Copy Info.plist
+if [ -f "$PROJECT_DIR/Info.plist" ]; then
+    cp "$PROJECT_DIR/Info.plist" "$PROJECT_DIR/$APP_NAME/"
 fi
 
-# Create project.pbxproj file
+echo -e "${GREEN}✓ Project structure created${NC}"
+echo ""
+
+echo -e "${BLUE}Step 3: Building application...${NC}"
+
+# Create minimal project.pbxproj
 mkdir -p "$PROJECT_DIR/$APP_NAME.xcodeproj"
 
 cat > "$PROJECT_DIR/$APP_NAME.xcodeproj/project.pbxproj" << 'PBXPROJ'
@@ -141,11 +96,10 @@ cat > "$PROJECT_DIR/$APP_NAME.xcodeproj/project.pbxproj" << 'PBXPROJ'
 		A2000003000000000000001 /* Models.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Models.swift; sourceTree = "<group>"; };
 		A2000004000000000000001 /* HashProcessor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HashProcessor.swift; sourceTree = "<group>"; };
 		A3000001000000000000001 /* PhoneHasher.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PhoneHasher.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		A4000001000000000000001 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
-		A5000001000000000000001 /* Frameworks */ = {
+		A8000001000000000000001 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -155,24 +109,23 @@ cat > "$PROJECT_DIR/$APP_NAME.xcodeproj/project.pbxproj" << 'PBXPROJ'
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		A6000001000000000000001 = {
-			isa = PBXGroup;
-			children = (
-				A6000002000000000000001 /* PhoneHasher */,
-				A6000003000000000000001 /* Products */,
-			);
-			sourceTree = "<group>";
-		};
-		A6000002000000000000001 /* PhoneHasher */ = {
+		A5000001000000000000001 /* PhoneHasher */ = {
 			isa = PBXGroup;
 			children = (
 				A2000001000000000000001 /* PhoneHasherApp.swift */,
 				A2000002000000000000001 /* ContentView.swift */,
 				A2000003000000000000001 /* Models.swift */,
 				A2000004000000000000001 /* HashProcessor.swift */,
-				A4000001000000000000001 /* Info.plist */,
 			);
 			path = PhoneHasher;
+			sourceTree = "<group>";
+		};
+		A6000001000000000000001 = {
+			isa = PBXGroup;
+			children = (
+				A5000001000000000000001 /* PhoneHasher */,
+				A6000003000000000000001 /* Products */,
+			);
 			sourceTree = "<group>";
 		};
 		A6000003000000000000001 /* Products */ = {
@@ -188,10 +141,10 @@ cat > "$PROJECT_DIR/$APP_NAME.xcodeproj/project.pbxproj" << 'PBXPROJ'
 /* Begin PBXNativeTarget section */
 		A7000001000000000000001 /* PhoneHasher */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = A8000001000000000000001 /* Build configuration list for PBXNativeTarget "PhoneHasher" */;
+			buildConfigurationList = AF000001000000000000001 /* Build configuration list for PBXNativeTarget "PhoneHasher" */;
 			buildPhases = (
 				A9000001000000000000001 /* Sources */,
-				A5000001000000000000001 /* Frameworks */,
+				A8000001000000000000001 /* Frameworks */,
 				AA000001000000000000001 /* Resources */,
 			);
 			buildRules = (
@@ -369,27 +322,24 @@ cat > "$PROJECT_DIR/$APP_NAME.xcodeproj/project.pbxproj" << 'PBXPROJ'
 			};
 			name = Release;
 		};
-		AF000001000000000000001 /* Debug */ = {
+		AF000002000000000000001 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_ENTITLEMENTS = "";
-				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_ENTITLEMENTS = PhoneHasher/PhoneHasher.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = "";
-				ENABLE_HARDENED_RUNTIME = YES;
+				DEVELOPMENT_ASSET_PATHS = "";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = PhoneHasher/Info.plist;
-				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2026. All rights reserved.";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MACOSX_DEPLOYMENT_TARGET = 13.0;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.phonehash.app;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -398,27 +348,24 @@ cat > "$PROJECT_DIR/$APP_NAME.xcodeproj/project.pbxproj" << 'PBXPROJ'
 			};
 			name = Debug;
 		};
-		B0000001000000000000001 /* Release */ = {
+		AF000003000000000000001 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_ENTITLEMENTS = "";
-				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_ENTITLEMENTS = PhoneHasher/PhoneHasher.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = "";
-				ENABLE_HARDENED_RUNTIME = YES;
+				DEVELOPMENT_ASSET_PATHS = "";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = PhoneHasher/Info.plist;
-				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2026. All rights reserved.";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MACOSX_DEPLOYMENT_TARGET = 13.0;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.phonehash.app;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -430,20 +377,20 @@ cat > "$PROJECT_DIR/$APP_NAME.xcodeproj/project.pbxproj" << 'PBXPROJ'
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		A8000001000000000000001 /* Build configuration list for PBXNativeTarget "PhoneHasher" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				AF000001000000000000001 /* Debug */,
-				B0000001000000000000001 /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
 		AC000001000000000000001 /* Build configuration list for PBXProject "PhoneHasher" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				AD000001000000000000001 /* Debug */,
 				AE000001000000000000001 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		AF000001000000000000001 /* Build configuration list for PBXNativeTarget "PhoneHasher" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				AF000002000000000000001 /* Debug */,
+				AF000003000000000000001 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
@@ -454,29 +401,13 @@ cat > "$PROJECT_DIR/$APP_NAME.xcodeproj/project.pbxproj" << 'PBXPROJ'
 }
 PBXPROJ
 
-echo -e "${GREEN}✓ Xcode project created${NC}"
-echo ""
-
-echo -e "${BLUE}Step 3: Building the app with xcodebuild...${NC}"
-
-# Clean previous builds
-rm -rf "$DERIVED_DATA"
-
-# Build the app
+# Build the project
 xcodebuild \
     -project "$PROJECT_DIR/$APP_NAME.xcodeproj" \
     -scheme "$APP_NAME" \
     -configuration Release \
     -derivedDataPath "$DERIVED_DATA" \
-    CODE_SIGN_IDENTITY="-" \
-    CODE_SIGNING_REQUIRED=NO \
-    CODE_SIGNING_ALLOWED=NO \
-    build
-
-if [ $? -ne 0 ]; then
-    echo "❌ Build failed"
-    exit 1
-fi
+    clean build
 
 echo -e "${GREEN}✓ Build successful${NC}"
 echo ""
@@ -504,6 +435,13 @@ mkdir -p "$DIST_DIR"
 # Copy the app
 cp -R "$BUILT_APP" "$DIST_DIR/"
 
+# Copy app icon if it exists
+if [ -f "$PROJECT_DIR/AppIcon.icns" ]; then
+    echo "  → Adding app icon..."
+    mkdir -p "$DIST_DIR/PhoneHasher.app/Contents/Resources"
+    cp "$PROJECT_DIR/AppIcon.icns" "$DIST_DIR/PhoneHasher.app/Contents/Resources/"
+fi
+
 # Remove quarantine attributes
 xattr -cr "$DIST_DIR/PhoneHasher.app"
 
@@ -512,54 +450,6 @@ if [ -f "$PROJECT_DIR/INSTALL.command" ]; then
     cp "$PROJECT_DIR/INSTALL.command" "$DIST_DIR/"
     chmod +x "$DIST_DIR/INSTALL.command"
 fi
-
-# Create README
-cat > "$DIST_DIR/README.txt" << 'EOF'
-PhoneHasher - Installation Instructions
-
-========================================
-EASIEST METHOD (Recommended):
-========================================
-Double-click INSTALL.command
-- Automatically removes security blocks
-- Opens the app for you
-- No manual steps needed!
-
-========================================
-ALTERNATIVE METHODS:
-========================================
-
-Method 1: Terminal Command
-Open Terminal and run:
-  xattr -cr ~/Downloads/PhoneHasher.app && open ~/Downloads/PhoneHasher.app
-
-Method 2: Right-Click
-- Right-click PhoneHasher.app
-- Click "Open"
-- Click "Open" in the dialog
-
-Method 3: System Settings
-- Try to open app (will be blocked)
-- Go to System Settings → Privacy & Security
-- Click "Open Anyway"
-- Click "Open"
-
-========================================
-USAGE:
-========================================
-1. Select hash format from dropdown
-2. Browse for CSV file with phone numbers
-3. Click "PROCESS FILE"
-4. Save the output
-5. Done!
-
-The app is completely safe and runs offline.
-Security warnings are because it's not code-signed (requires $99/year Apple Developer account).
-
----
-PhoneHasher v1.0
-Copyright © 2026
-EOF
 
 # Get app size
 APP_SIZE=$(du -sh "$DIST_DIR/PhoneHasher.app" | cut -f1)
@@ -572,9 +462,9 @@ echo -e "${BLUE}Step 6: Creating ZIP file...${NC}"
 # Create ZIP
 cd "$DIST_DIR"
 if [ -f "INSTALL.command" ]; then
-    zip -ry PhoneHasher-Swift.zip PhoneHasher.app INSTALL.command README.txt
+    zip -ry PhoneHasher-Swift.zip PhoneHasher.app INSTALL.command
 else
-    zip -ry PhoneHasher-Swift.zip PhoneHasher.app README.txt
+    zip -ry PhoneHasher-Swift.zip PhoneHasher.app
 fi
 cd "$PROJECT_DIR"
 
@@ -598,9 +488,3 @@ echo ""
 echo "   2. Share with team:"
 echo "      Upload PhoneHasher-Swift.zip to Google Drive"
 echo ""
-echo "   3. Clean up build files (optional):"
-echo "      rm -rf \"$DERIVED_DATA\""
-echo "      rm -rf \"$PROJECT_DIR/$APP_NAME.xcodeproj\""
-echo "      rm -rf \"$PROJECT_DIR/$APP_NAME\""
-echo ""
-echo "=========================================="

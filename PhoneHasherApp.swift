@@ -13,9 +13,12 @@ struct PhoneHasherApp: App {
     var body: some Scene {
         WindowGroup {
             ContentView()
-                .frame(minWidth: 800, minHeight: 950)
+                .frame(minWidth: 700, idealWidth: 900, maxWidth: 1400,
+                       minHeight: 800, idealHeight: 1000, maxHeight: 1600)
         }
-        .windowStyle(.hiddenTitleBar)
         .windowResizability(.contentSize)
+        .commands {
+            CommandGroup(replacing: .newItem) {}
+        }
     }
 }
