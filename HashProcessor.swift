@@ -143,10 +143,7 @@ class HashProcessor {
         defer { try? outputHandle.close() }
 
         // Open input file for streaming
-        guard let inputHandle = FileHandle(forReadingFrom: fileURL) else {
-            throw NSError(domain: "HashProcessor", code: 3, userInfo: [NSLocalizedDescriptionKey: "Cannot open input file"])
-        }
-
+        let inputHandle = try FileHandle(forReadingFrom: fileURL)
         defer { try? inputHandle.close() }
 
         var successCount = 0
