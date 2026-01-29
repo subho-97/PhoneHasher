@@ -3,17 +3,18 @@ PhoneHasher v3.1 - Complete File List
 
 Location: /Users/subhadip.sinha/Downloads/PH_3.1
 
-REQUIRED FILES FOR GITHUB (9):
-==============================
+REQUIRED FILES FOR GITHUB (10):
+===============================
 ✅ PhoneHasherApp.swift         - App entry point with resizable window
 ✅ ContentView.swift            - Main UI with all v3.1 fixes
 ✅ Models.swift                 - Data models (AppState, FileInfo, etc.)
 ✅ HashProcessor.swift          - Optimized streaming processor
-✅ build_from_cli.sh            - Complete build script
+✅ build_from_cli.sh            - Complete build script (UPDATED - fixes entitlements)
 ✅ Info.plist                   - Bundle configuration
+✅ PhoneHasher.entitlements     - App entitlements (NEW - fixes build error)
 ✅ INSTALL.command              - Auto-installer for end users
 ✅ create_icon.py               - Icon generator (auto-run by GitHub)
-✅ .github/workflows/build.yml  - GitHub Actions workflow
+✅ .github/workflows/build.yml  - GitHub Actions workflow (UPDATED - uses venv)
 
 DOCUMENTATION FILES (4):
 =======================
@@ -27,10 +28,10 @@ UTILITY FILES (2):
 🔧 FILE_LIST.txt                - This file
 🔧 create_icon_simple.sh        - Alternative icon generator (optional)
 
-TOTAL: 15 files
+TOTAL: 16 files
 
-MINIMUM TO UPLOAD: 9 required files
-RECOMMENDED: All 13 files (9 required + 4 documentation)
+MINIMUM TO UPLOAD: 10 required files
+RECOMMENDED: All 14 files (10 required + 4 documentation)
 
 =====================================
 
@@ -47,6 +48,7 @@ Models.swift
 HashProcessor.swift
 build_from_cli.sh
 Info.plist
+PhoneHasher.entitlements (NEW!)
 INSTALL.command
 create_icon.py
 .github/workflows/build.yml

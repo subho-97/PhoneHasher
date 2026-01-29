@@ -66,6 +66,25 @@ if [ -f "$PROJECT_DIR/Info.plist" ]; then
     cp "$PROJECT_DIR/Info.plist" "$PROJECT_DIR/$APP_NAME/"
 fi
 
+# Copy or create entitlements file
+if [ -f "$PROJECT_DIR/PhoneHasher.entitlements" ]; then
+    cp "$PROJECT_DIR/PhoneHasher.entitlements" "$PROJECT_DIR/$APP_NAME/"
+else
+    # Create entitlements file
+    cat > "$PROJECT_DIR/$APP_NAME/PhoneHasher.entitlements" << 'EOF'
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>com.apple.security.app-sandbox</key>
+    <false/>
+    <key>com.apple.security.files.user-selected.read-write</key>
+    <true/>
+</dict>
+</plist>
+EOF
+fi
+
 echo -e "${GREEN}✓ Project structure created${NC}"
 echo ""
 
