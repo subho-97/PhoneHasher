@@ -33,8 +33,17 @@ All required files have been created in:
 ```bash
 cd /Users/subhadip.sinha/Downloads/PH_3.1
 
-# 1. Generate icon
+# 1. Generate icon (choose ONE method):
+
+# Method A: Using Python (if you get an error, use Method B)
 python3 create_icon.py
+
+# Method B: If you get "externally-managed-environment" error:
+python3 -m pip install Pillow --break-system-packages --user
+python3 create_icon.py
+
+# Method C: Skip icon for now (app will work without it)
+# Just skip this step - the app will build without an icon
 
 # 2. Make scripts executable
 chmod +x build_from_cli.sh

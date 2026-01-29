@@ -440,6 +440,10 @@ if [ -f "$PROJECT_DIR/AppIcon.icns" ]; then
     echo "  → Adding app icon..."
     mkdir -p "$DIST_DIR/PhoneHasher.app/Contents/Resources"
     cp "$PROJECT_DIR/AppIcon.icns" "$DIST_DIR/PhoneHasher.app/Contents/Resources/"
+    echo "  ✓ App icon embedded"
+else
+    echo "  ⚠️  AppIcon.icns not found - app will use default icon"
+    echo "     To add icon: run 'python3 create_icon.py' first"
 fi
 
 # Remove quarantine attributes
