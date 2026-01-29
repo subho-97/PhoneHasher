@@ -55,5 +55,4 @@ jobs:
         echo "📦 Built files:"                                      
         ls -lh dist/                                                
         echo ""                                                     
-        echo "🎉 Download the artifacts from the GitHub Actions     
-page"
+        echo "🎉 Download the artifacts from the GitHub Actions page"
