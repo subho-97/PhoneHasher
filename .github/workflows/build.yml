@@ -1,56 +1,59 @@
-name: Build PhoneHasher Swift App
-
-on:
-  push:
-    branches: [ main, master ]
-  pull_request:
-    branches: [ main, master ]
-  workflow_dispatch:
-
-jobs:
-  build:
-    runs-on: macos-latest
-
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-
-    - name: Show Xcode version
-      run: xcodebuild -version
-
-    - name: Install Pillow for icon generation
-      run: python3 -m pip install Pillow
-
-    - name: Generate app icon
-      run: python3 create_icon.py
-
-    - name: Make scripts executable
-      run: |
-        chmod +x build_from_cli.sh
-        chmod +x INSTALL.command
-
-    - name: Build PhoneHasher app
-      run: ./build_from_cli.sh
-
-    - name: Upload app as artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: PhoneHasher-Swift
-        path: dist/PhoneHasher-Swift.zip
-        retention-days: 30
-
-    - name: Upload standalone app
-      uses: actions/upload-artifact@v4
-      with:
-        name: PhoneHasher-App
-        path: dist/PhoneHasher.app
-        retention-days: 30
-
-    - name: Show build summary
-      run: |
-        echo "✅ Build completed successfully!"
-        echo ""
-        echo "📦 Built files:"
-        ls -lh dist/
-        echo ""
-        echo "🎉 Download the artifacts from the GitHub Actions page"
+name: Build PhoneHasher Swift App                                   
+                                                                      
+  on:                                                                 
+    push:                                                             
+      branches: [ main, master ]                                      
+    pull_request:                                                     
+      branches: [ main, master ]                                      
+    workflow_dispatch:                                                
+                                                                      
+  jobs:                                                               
+    build:                                                            
+      runs-on: macos-latest                                           
+                                                                      
+      steps:                                                          
+      - name: Checkout code                                           
+        uses: actions/checkout@v4                                     
+                                                                      
+      - name: Show Xcode version                                      
+        run: xcodebuild -version                                      
+                                                                      
+      - name: Install Pillow for icon generation                      
+        run: |                                                        
+          python3 -m venv venv                                        
+          source venv/bin/activate                                    
+          pip install Pillow                                          
+          python3 create_icon.py                                      
+          deactivate                                                  
+                                                                      
+      - name: Make scripts executable                                 
+        run: |                                                        
+          chmod +x build_from_cli.sh                                  
+          chmod +x INSTALL.command                                    
+                                                                      
+      - name: Build PhoneHasher app                                   
+        run: ./build_from_cli.sh                                      
+                                                                      
+      - name: Upload app as artifact                                  
+        uses: actions/upload-artifact@v4                              
+        with:                                                         
+          name: PhoneHasher-Swift                                     
+          path: dist/PhoneHasher-Swift.zip                            
+          retention-days: 30                                          
+                                                                      
+      - name: Upload standalone app                                   
+        uses: actions/upload-artifact@v4                              
+        with:                                                         
+          name: PhoneHasher-App                                       
+          path: dist/PhoneHasher.app                                  
+          retention-days: 30                                          
+                                                                      
+      - name: Show build summary                                      
+        run: |                                                        
+          echo "✅ Build completed successfully!"                     
+          echo ""                                                     
+          echo "📦 Built files:"                                      
+          ls -lh dist/                                                
+          echo ""                                                     
+          echo "🎉 Download the artifacts from the GitHub Actions     
+  page"
